@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Eco-Straw Giveaway</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-green-50 min-h-screen flex items-center justify-center p-6">
+  <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold mb-3">Eco-Straw — Scan & Win</h1>
+    <p class="text-sm text-gray-600 mb-4">Enter code from your straw pack</p>
+
+    <input id="codeInput" type="text" placeholder="Enter code" class="w-full p-3 border rounded mb-4" />
+    <button id="checkBtn" class="w-full bg-green-600 text-white p-3 rounded">Check Now</button>
+
+    <p id="resultText" class="mt-4 text-lg font-semibold"></p>
+  </div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz69vQL44VliKw-wxd0p7nRoOsYS5AY0jfD-q_d3iKwz0Ub_v1GDy3wbYNqYBbNLGtw-g/exec"; // <-- REPLACE with your Apps Script web app URL
+
+async function checkCode(){
+  const code = document.getElementById('codeInput').value.trim();
+  const resultText = document.getElementById('resultText');
+  if(!code){ alert("Enter your code!"); return; }
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({ code }),
+      headers: { "Content-Type":"application/json" }
+    });
+    const json = await res.json();
+    resultText.textContent = json.message || "No response";
+    resultText.className = 'mt-4 text-lg font-semibold ' + (json.winner ? 'text-green-600' : 'text-red-600');
+  } catch(err) {
+    console.error(err);
+    resultText.textContent = "Network error. Try again.";
+    resultText.className = 'mt-4 text-lg font-semibold text-red-600';
+  }
+}
+
+document.getElementById('checkBtn').addEventListener('click', checkCode);
+document.getElementById('codeInput').addEventListener('keypress', (e)=>{ if(e.key==='Enter') checkCode(); });
+</script>
+</body>
+</html>
